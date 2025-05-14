@@ -1,17 +1,20 @@
 pipeline {
   agent any
+
   environment {
     AWS_REGION = 'us-east-1'
     STACK_NAME = 'MyVPCStack-1'
     CHANGE_SET_NAME = 'SafeChangeSet'
   }
+
   stages {
     stage('Checkout') {
       steps {
-        git branch: 'master', url: 'https://github.com/raju0509/demo26.git'
+        // Replace with correct branch name if not 'master'
+        git branch: 'master', url: 'https://github.com/raju0509/radhe-radhe.git'
       }
     }
-    
+
     stage('Validate CF Template') {
       steps {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
@@ -29,7 +32,8 @@ pipeline {
               --template-body file://jaimax-devops.yaml \
               --change-set-name ${CHANGE_SET_NAME} \
               --capabilities CAPABILITY_NAMED_IAM \
-              --region ${AWS_REGION} || true
+              --region ${AWS_REGION}
+              # --parameters ParameterKey=KeyName,ParameterValue=MyKey
           '''
         }
       }
@@ -66,6 +70,19 @@ pipeline {
         withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
           sh '''
             aws cloudformation wait stack-update-complete \
+              --stack-name ${STACK_NAME} \
+              --region ${AWS_REGION}
+          '''
+        }
+      }
+    }
+
+    stage('Delete Change Set') {
+      steps {
+        withCredentials([[$class: 'AmazonWebServicesCredentialsBinding', credentialsId: 'aws-credentials']]) {
+          sh '''
+            aws cloudformation delete-change-set \
+              --change-set-name ${CHANGE_SET_NAME} \
               --stack-name ${STACK_NAME} \
               --region ${AWS_REGION}
           '''
