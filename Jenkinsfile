@@ -3,7 +3,7 @@ pipeline {
 
   environment {
     AWS_REGION = 'us-east-1'
-    STACK_NAME = 'MyVPCStack-1'
+    STACK_NAME = 'MyVPCStack'
     CHANGE_SET_NAME = 'SafeChangeSet'
   }
 
